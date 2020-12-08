@@ -11,6 +11,7 @@ import TopBar from "./components/TopBar";
 import Topics from "./components/Topics";
 import AuthenticationContext from "./contexts/AuthenticationContext";
 import LoginModalContext from "./contexts/LoginModalContext";
+import AddTopic from "./pages/AddTopic";
 import SecretSubject from "./pages/SecretSubject";
 import authAPI from "./services/authAPI";
 import DefaultThemeProvider from "./themes/DefaultThemeProvider";
@@ -52,32 +53,35 @@ function App() {
 	};
 
 	return (
-		<div className={classes.root}>
-			<CssBaseline />
+    <div className={classes.root}>
+      <CssBaseline />
 
-			<AuthenticationContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
-			<LoginModalContext.Provider
-				value={{ open, handleOpen: handleClickOpen, handleClose }}
-			>
-				<TopBar handleDrawerToggle={handleDrawerToggle} />
+      <AuthenticationContext.Provider
+        value={{ isAuthenticated, setIsAuthenticated }}
+      >
+        <LoginModalContext.Provider
+          value={{ open, handleOpen: handleClickOpen, handleClose }}
+        >
+          <TopBar handleDrawerToggle={handleDrawerToggle} />
 
-				<SideBar
-					mobileOpen={mobileOpen}
-					handleDrawerToggle={handleDrawerToggle}
-				/>
+          <SideBar
+            mobileOpen={mobileOpen}
+            handleDrawerToggle={handleDrawerToggle}
+          />
 
-				<main className={classes.content}>
-					<div className={classes.toolbar} />
-					<Switch>
-						<PrivateRoute path="/sujets-secrets" component={SecretSubject} />
-						<Route path="/" component={Topics} />
-					</Switch>
-					<Login />
-				</main>
-			</LoginModalContext.Provider>
-				</AuthenticationContext.Provider>
-		</div>
-	);
+          <main className={classes.content}>
+            <div className={classes.toolbar} />
+            <Switch>
+              <PrivateRoute path="/sujets-secrets" component={SecretSubject} />
+              <PrivateRoute path="/ajouter-un-sujet" component={AddTopic} />
+              <Route path="/" component={Topics} />
+            </Switch>
+            <Login />
+          </main>
+        </LoginModalContext.Provider>
+      </AuthenticationContext.Provider>
+    </div>
+  );
 }
 
 App.propTypes = {

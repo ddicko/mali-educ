@@ -4,11 +4,55 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TopicRepository;
+use App\Controller\CreateTopicController;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation\Uploadable;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 /**
  * @ORM\Entity(repositoryClass=TopicRepository::class)
- * @ApiResource
+ * 
+ * @ApiResource(
+ *     iri="http://schema.org/MediaObject",
+ *     normalizationContext={
+ *         "groups"={"topic:read"}
+ *     },
+ *     collectionOperations={
+ *         "post"={
+ *             "controller"=CreateTopicController::class,
+ *             "deserialize"=false,
+ *             "validation_groups"={"Default", "topic:create"},
+ *             "openapi_context"={
+ *                 "requestBody"={
+ *                     "content"={
+ *                         "multipart/form-data"={
+ *                             "schema"={
+ *                                 "type"="object",
+ *                                 "properties"={
+ *                                     "topicFile"={
+ *                                         "type"="string",
+ *                                         "format"="binary"
+ *                                     }
+ *                                 }
+ *                             }
+ *                         }
+ *                     }
+ *                 }
+ *             }
+ *         },
+ *         "get"
+ *     },
+ *     itemOperations={
+ *         "get"
+ *     }
+ * )
+ * 
+ * @Vich\Uploadable
  */
 class Topic
 {
@@ -16,36 +60,70 @@ class Topic
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * 
+     * @Groups({"topic:read"})
      */
     private $id;
 
     /**
+     * @ORM\Column(type="string")
+     * 
+     * @Groups({"topic:read"})
+     *
+     * @var string
+     */
+    private $topicName;
+
+    /**
+     * NOTE: This is not a mapped field of entity metadata, just a simple property.
+     * 
+     * @Vich\UploadableField(mapping="topics", fileNameProperty="topicName")
+     *
+     * @Assert\NotNull(groups={"topic:create"})
+     * 
+     * @var File
+     */
+    private $topicFile;
+
+    /**
      * @ORM\Column(type="string", length=255)
+     * 
+     * @Groups({"topic:read", "topic:create"})
      */
     private $yearacademic;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * 
+     * @Groups({"topic:read", "topic:create"})
      */
     private $speciality;
 
     /**
      * @ORM\Column(type="integer")
+     * 
+     * @Groups({"topic:read", "topic:create"})
      */
     private $duration;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * 
+     * @Groups({"topic:read",  "topic:create"})
      */
     private $serie;
 
     /**
      * @ORM\Column(type="integer")
+     * 
+     * @Groups({"topic:read",  "topic:create"})
      */
     private $coefficient;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * 
+     * @Groups({"topic:read",  "topic:create"})
      */
     private $level;
 
@@ -124,5 +202,29 @@ class Topic
         $this->level = $level;
 
         return $this;
+    }
+
+    public function getTopicName(): ?string
+    {
+        return $this->topicName;
+    }
+
+    public function setTopicName(string $topicName): self
+    {
+        $this->topicName = $topicName;
+
+        return $this;
+    }
+
+    public function getTopicFile()
+    {
+        return $this->topicFile;
+    }
+
+    public function setTopicFile(?File $topicFile = null)
+    {
+        $this->topicFile = $topicFile;
+
+                return $this;
     }
 }
